@@ -314,10 +314,6 @@ public class RA_assigment {
 				System.out.print("Match percentage :- " + temp.match + "%");
 
 				System.out.println();
-			} else {
-
-				swap_and_remove(list, i);
-
 			}
 		}
 
@@ -428,15 +424,4 @@ public class RA_assigment {
 
 	}
 
-	public static void swap_and_remove(ArrayList<Property> list, int i) {
-		Property ith = list.get(i);
-
-		Property last = list.get(list.size() - 1);
-
-		list.set(list.size() - 1, ith);
-
-		list.set(i, last);
-
-		list.remove(list.size() - 1);
-	}
 }
