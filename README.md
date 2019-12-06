@@ -18,3 +18,7 @@ scoreMatch function uses "budget_parameter" , "bedroom_parameter" and "bathroom_
 
 After the match is complete the all the match which are more than 40 on the scorecard is displayed.
 The result can also be passed as ArrayList for other purposes.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The time Complexity is O(n) , where n is the number of entries in the DB.
+The space complexity is O(m) , where m is the shortlisted properties.
