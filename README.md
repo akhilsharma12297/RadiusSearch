@@ -1,6 +1,6 @@
 # RadiusAgent Assigment
 
-!https://miro.medium.com/max/623/1*lQtTOp_q3oI12CDyMPvVMw.png
+![RadiusAgent](https://miro.medium.com/max/623/1*lQtTOp_q3oI12CDyMPvVMw.png)
   
 ## RadiusSearch
 RadiusSearch is the Search algorithm designed for RadiusAgent.
