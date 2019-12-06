@@ -6,7 +6,7 @@ RadiusSearch is the Search algorithm designed for RadiusAgent helping user to fi
 
 User provides distance/radius , location(latitude , longitude) , Range of budget(min-max), Range of bedroom(min-max),Range of bathroom(min-max).
 
-The received value is passed to "driverFunction" which adds min-max of budget, bedroom, and bathroom to there respective objects and cases where only one value of the present is handled.
+The received value is passed to "driverFunction" which manages min-max of budget, bedroom, and bathroom to there respective objects and cases where only one value of the present is handled.
 
 Values are then passed to "obtainDataFromDb_and_Validate" function. As the name suggests this function gets a from the propertytable from radiusagent DB.After making the connection with the DB the "obtainDataFromDb_and_Validate" function with the help of "validate" shortlist the property which is less than 10 miles also falls +/-25% of the budget range and +/-2 of the bedroom and bathroom range.
 
