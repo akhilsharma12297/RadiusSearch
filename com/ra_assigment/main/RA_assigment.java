@@ -5,27 +5,7 @@ import java.sql.*;
 
 public class RA_assigment {
 
-	public static void makeDB_Connection() {
-		Connection con = null;
-		try {
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/radiusagent", "root", "your_password ");
-			if (!con.isClosed())
-				System.out.println("Successfully connected to MySQL server...");
-		} catch (Exception e) {
-			System.err.println("Exception: " + e.getMessage());
-		} finally {
-			try {
-				if (con != null)
-					con.close();
-			} catch (SQLException e) {
-			}
-		}
-	}
-
 	public static void main(String[] args) {
-
-		makeDB_Connection();
 
 		int latitude = 7;
 
@@ -43,13 +23,45 @@ public class RA_assigment {
 
 		bathroom.max = 2;
 
-		Property temp = new Property(1, 5, 7, 5000, 2, 2);
-
-		ArrayList<Property> list = new ArrayList<>();
-
-		list.add(temp);
+		ArrayList<Property> list = obtainDataFromDb(latitude, longtiude);
 
 		driverFunc(list, latitude, longtiude, budget, bed, bathroom);
+	}
+
+	public static ArrayList<Property> obtainDataFromDb(int latitude, int longtiude) {
+		ArrayList<Property> list = new ArrayList<Property>();
+
+		Connection conn = null;
+		String url = "jdbc:mysql://localhost:3306/";
+		String dbName = "radiusagent";
+		String driver = "com.mysql.jdbc.Driver";
+		String userName = "root";
+		String password = "";
+		String f1, f2;
+		try {
+			Class.forName(driver).newInstance();
+			conn = DriverManager.getConnection(url + dbName, userName, password);
+			String query = "Select * FROM propertytable";
+			System.out.println("Connected to the database");
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			while (rs.next()) {
+				list.add(new Property(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5),
+						rs.getInt(6)));
+			} // end while
+			conn.close();
+			System.out.println("Disconnected from database");
+		} // end try
+		catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return list;
+
 	}
 
 	static class Property {
@@ -195,6 +207,8 @@ public class RA_assigment {
 			System.out.print(list.get(i).no_bed + " ");
 			System.out.print(list.get(i).price + " ");
 			System.out.print(list.get(i).match);
+
+			System.out.println();
 		}
 
 	}
