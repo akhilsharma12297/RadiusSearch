@@ -2,7 +2,7 @@
 ![RadiusAgent](https://miro.medium.com/max/623/1*lQtTOp_q3oI12CDyMPvVMw.png)
   
 ## RadiusSearch
-RadiusSearch is the Search algorithm designed for RadiusAgent.
+RadiusSearch is the Search algorithm designed for RadiusAgent helping user to find the properties best matching to there criteria.
 
 User provides distance/radius , location(latitude , longitude) , Range of budget(min-max), Range of bedroom(min-max),Range of bathroom(min-max).
 
