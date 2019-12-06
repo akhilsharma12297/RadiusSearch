@@ -7,6 +7,7 @@ public class RA_assigment {
 
 	public static void main(String[] args) {
 
+		int radius = 10;
 		int latitude = 7;
 
 		int longtiude = 7;
@@ -23,44 +24,9 @@ public class RA_assigment {
 
 		bathroom.max = 2;
 
-		ArrayList<Property> list = obtainDataFromDb(latitude, longtiude);
+		ArrayList<Property> list = obtainDataFromDb_and_Validate(radius, latitude, longtiude, budget, bed, bathroom);
 
-		driverFunc(list, latitude, longtiude, budget, bed, bathroom);
-	}
-
-	public static ArrayList<Property> obtainDataFromDb(int latitude, int longtiude) {
-		ArrayList<Property> list = new ArrayList<Property>();
-
-		Connection conn = null;
-		String url = "jdbc:mysql://localhost:3306/";
-		String dbName = "radiusagent";
-		String driver = "com.mysql.jdbc.Driver";
-		String userName = "root";
-		String password = "";
-		String f1, f2;
-		try {
-			Class.forName(driver).newInstance();
-			conn = DriverManager.getConnection(url + dbName, userName, password);
-			String query = "Select * FROM propertytable";
-			System.out.println("Connected to the database");
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(query);
-			while (rs.next()) {
-				list.add(new Property(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5),
-						rs.getInt(6)));
-			} // end while
-			conn.close();
-			System.out.println("Disconnected from database");
-		} // end try
-		catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return list;
+		match(list, latitude, longtiude, budget, bed, bathroom);
 
 	}
 
@@ -74,13 +40,14 @@ public class RA_assigment {
 
 		int match;
 
-		Property(int id, int latitude, int longtiude, int price, int no_bed, int no_bath) {
+		Property(int id, int latitude, int longtiude, int price, int no_bed, int no_bath, int match) {
 			this.id = id;
 			this.latitude = latitude;
 			this.longtiude = longtiude;
 			this.price = price;
 			this.no_bed = no_bed;
 			this.no_bath = no_bath;
+			this.match = match;
 		}
 	}
 
@@ -124,106 +91,107 @@ public class RA_assigment {
 
 	}
 
-	private static void driverFunc(ArrayList<Property> list, int latitude, int longtiude, Budget budget, Bed bed,
-			Bathroom bathroom) {
+	private static ArrayList<Property> obtainDataFromDb_and_Validate(int radius, int latitude, int longtiude,
+			Budget budget, Bed bed, Bathroom bathroom) {
 
-		for (int i = 0; i < list.size(); i++) {
+		ArrayList<Property> list = new ArrayList<Property>();
 
-			Property temp = list.get(i);
+		Connection conn = null;
+		String url = "jdbc:mysql://localhost:3306/";
+		String dbName = "radiusagent";
+		String driver = "com.mysql.jdbc.Driver";
+		String userName = "root";
+		String password = "";
+		try {
+			Class.forName(driver).newInstance();
+			conn = DriverManager.getConnection(url + dbName, userName, password);
+			String query = "Select * FROM propertytable";
+			System.out.println("Connected to the database. Obtaining data.");
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			while (rs.next()) {
 
-			double distance = Find_distance(latitude, longtiude, temp.latitude, temp.longtiude);
-
-			if (distance <= 2) {
-				temp.match += 30;
-			}
-
-			double budget_min = 0;
-			double budget_max = 0;
-
-			if (budget.bit == true) {
-				budget_min = budget.min * 0.75;
-				budget_max = budget.max * 1.25;
-			} else if (budget.min != -1) {
-
-				budget_min = budget.min * 0.75;
-				budget_max = budget.min * 1.25;
-
-			} else if (budget.max != -1) {
-				budget_min = budget.max * 0.75;
-				budget_max = budget.max * 1.25;
+				validate(rs, list, radius, latitude, longtiude, budget, bed, bathroom);
 
 			}
-
-			double bed_min = 0;
-			double bed_max = 0;
-
-			if (budget.bit == true) {
-				bed_min = bed.min - 2;
-				bed_max = bed.max + 2;
-			} else if (bed.min != -1) {
-				bed_min = bed.min - 2;
-				bed_max = bed.min + 2;
-			} else if (budget.max != -1) {
-				bed_min = bed.max - 2;
-				bed_max = bed.max + 2;
-			}
-
-			double bathroom_min = 0;
-			double bathroom_max = 0;
-
-			if (budget.bit == true) {
-				bathroom_min = bathroom.min - 2;
-				bathroom_max = bathroom.max + 2;
-			} else if (budget.min != -1) {
-				bathroom_min = bathroom.min - 2;
-				bathroom_max = bathroom.min + 2;
-			} else if (budget.max != -1) {
-				bathroom_min = bathroom.max - 2;
-				bathroom_max = bathroom.max + 2;
-			}
-
-			if (!(distance <= 10) || !((budget.min * 0.75) < temp.price && temp.price < (budget.max * 1.25))
-					|| !((bed_min * 0.75) < temp.no_bed && temp.no_bed < (bed_max * 1.25))
-					|| !((bathroom_min * 0.75) < temp.no_bath && temp.no_bath < (bathroom_max * 1.25))) {
-
-				swap_and_remove(list, i);
-
-			}
-
-			budget_parameter(temp, budget);
-
-			bedroom_parameter(temp, bed);
-
-			bathroom_parameter(temp, bathroom);
-
+			conn.close();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
-		for (int i = 0; i < list.size(); i++) {
-			System.out.print(list.get(i).id + " ");
-			System.out.print(list.get(i).latitude + " ");
-			System.out.print(list.get(i).longtiude + " ");
-			System.out.print(list.get(i).match + " ");
-			System.out.print(list.get(i).no_bath + " ");
-			System.out.print(list.get(i).no_bed + " ");
-			System.out.print(list.get(i).price + " ");
-			System.out.print(list.get(i).match);
-
-			System.out.println();
-		}
+		return list;
 
 	}
 
-	public static void swap_and_remove(ArrayList<Property> list, int i) {
+	public static void validate(ResultSet rs, ArrayList<Property> list, int radius, int latitude, int longtiude,
+			Budget budget, Bed bed, Bathroom bathroom) throws SQLException {
 
-		Property temp = list.get(i);
+		double distance = Find_distance(latitude, longtiude, rs.getInt(2), rs.getInt(3));
 
-		Property last = list.get(list.size() - 1);
+		int match = 0;
 
-		list.set(list.size() - 1, temp);
+		double budget_min = 0;
+		double budget_max = 0;
 
-		list.set(i, last);
+		if (budget.bit == true) {
+			budget_min = budget.min * 0.75;
+			budget_max = budget.max * 1.25;
+		} else if (budget.min != -1) {
 
-		list.remove(list.size() - 1);
+			budget_min = budget.min * 0.75;
+			budget_max = budget.min * 1.25;
+
+		} else if (budget.max != -1) {
+			budget_min = budget.max * 0.75;
+			budget_max = budget.max * 1.25;
+
+		}
+
+		double bed_min = 0;
+		double bed_max = 0;
+
+		if (budget.bit == true) {
+			bed_min = bed.min - 2;
+			bed_max = bed.max + 2;
+		} else if (bed.min != -1) {
+			bed_min = bed.min - 2;
+			bed_max = bed.min + 2;
+		} else if (budget.max != -1) {
+			bed_min = bed.max - 2;
+			bed_max = bed.max + 2;
+		}
+
+		double bathroom_min = 0;
+		double bathroom_max = 0;
+
+		if (budget.bit == true) {
+			bathroom_min = bathroom.min - 2;
+			bathroom_max = bathroom.max + 2;
+		} else if (budget.min != -1) {
+			bathroom_min = bathroom.min - 2;
+			bathroom_max = bathroom.min + 2;
+		} else if (budget.max != -1) {
+			bathroom_min = bathroom.max - 2;
+			bathroom_max = bathroom.max + 2;
+		}
+
+		if ((distance <= 10) && (budget.min <= rs.getInt(4) && rs.getInt(4) <= budget.max)
+				&& (bed_min <= rs.getInt(5) && rs.getInt(5) <= bed_max)
+				&& (bathroom_min <= rs.getInt(6) && rs.getInt(6) <= bathroom_max)) {
+
+			if (distance <= 2) {
+				match = 30;
+			}
+
+			list.add(new Property(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getInt(6),
+					match));
+
+		}
+
 	}
 
 	public static void budget_parameter(Property temp, Budget budget) {
@@ -328,6 +296,38 @@ public class RA_assigment {
 
 	private static double Find_distance(int x1, int y1, int x2, int y2) {
 		return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+
+	}
+
+	private static void match(ArrayList<Property> list, int latitude, int longtiude, Budget budget, Bed bed,
+			Bathroom bathroom) {
+
+		for (int i = 0; i < list.size(); i++) {
+
+			System.out.println();
+
+			Property temp = list.get(i);
+
+			budget_parameter(temp, budget);
+
+			bedroom_parameter(temp, bed);
+
+			bathroom_parameter(temp, bathroom);
+
+			if (temp.match >= 40) {
+
+				System.out.print("S.No " + i + " -> ID :- " + temp.id + " ");
+				System.out.print("Latitude :- " + temp.latitude + " ");
+				System.out.print("longtiude :- " + temp.longtiude + " ");
+				System.out.print("Price :- " + temp.price + " ");
+				System.out.print("No of Bathrooms :- " + temp.no_bath + " ");
+				System.out.print("No of Bathrooms :- " + temp.no_bed + " ");
+				System.out.print("No of Bathrooms :- " + temp.price + " ");
+				System.out.print("Match percentage :- " + temp.match + "%");
+
+				System.out.println();
+			}
+		}
 
 	}
 
