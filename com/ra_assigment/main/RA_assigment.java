@@ -13,31 +13,67 @@ public class RA_assigment {
 
 		int longitude = 7; // My current longitude
 
+		int min_budget = -1; // If value is not entered by the user, -1 is sent to the program. Same is for
+								// no. of beds , no. of Bathrooms
+
+		int max_budget = 5000;
+
+		int min_bedroom = -1;
+
+		int max_bedroom = 2;
+
+		int min_bathroom = -1;
+
+		int max_bathroom = 2;
+
+		driverFunction(radius, latitude, longitude, min_budget, max_budget, min_bedroom, max_bedroom, min_bathroom,
+				max_bathroom);
+
+	}
+
+	public static void driverFunction(int radius, int latitude, int longitude, int min_budget, int max_budget,
+			int min_bedroom, int max_bedroom, int min_bathroom, int max_bathroom) {
+
 		Budget budget = new Budget(); // Budget has 3 members:-
 										// "min" minimum budget range by user , -1 for no input
 										// "max" maximum budget range by user , -1 for no input
 										// "bit" bit is "true" when both both value are provided
 
-		budget.max = 5000; // Value for max Budgets
+		budget.min = min_budget;
+		budget.max = max_budget;
 
-		Bed bed = new Bed(); // Budget has 3 members:-
-								// "min" minimum no. of beds range by user , -1 for no input
-								// "max" maximum no. of beds range by user , -1 for no input
-								// "bit" bit is "true" when both both value are provided
+		if (min_budget != -1 && max_budget != -1) {
+			budget.bit = true;
+		}
 
-		bed.max = 2; // Value for max no. of beds
+		Bedroom bedroom = new Bedroom(); // Budget has 3 members:-
+											// "min" minimum no. of beds range by user , -1 for no input
+											// "max" maximum no. of beds range by user , -1 for no input
+											// "bit" bit is "true" when both both value are provided
+
+		bedroom.min = min_bedroom;
+		bedroom.max = max_bedroom;
+
+		if (min_bedroom != -1 && max_bedroom != -1) {
+			bedroom.bit = true;
+		}
 
 		Bathroom bathroom = new Bathroom(); // Budget has 3 members:-
 											// "min" minimum no. of bathroom range by user , -1 for no input
 											// "max" maximum no. of bathroom range by user , -1 for no input
 											// "bit" bit is "true" when both both value are provided
 
-		bathroom.max = 2; // Value for max no. of bathroom
+		bathroom.min = min_bathroom;
+		bathroom.max = max_bathroom;
 
-		ArrayList<Property> list = obtainDataFromDb_and_Validate(radius, latitude, longitude, budget, bed, bathroom);
+		if (min_bathroom != -1 && max_bathroom != -1) {
+			bedroom.bit = true;
+		}
 
-		rateMatch(list, latitude, longitude, budget, bed, bathroom);
+		ArrayList<Property> list = obtainDataFromDb_and_Validate(radius, latitude, longitude, budget, bedroom,
+				bathroom);
 
+		rateMatch(list, latitude, longitude, budget, bedroom, bathroom);
 	}
 
 	static class Property {
@@ -74,7 +110,7 @@ public class RA_assigment {
 		}
 	}
 
-	static class Bed {
+	static class Bedroom {
 		int min = -1;
 		int max = -1;
 		boolean bit;
@@ -114,7 +150,7 @@ public class RA_assigment {
 	 */
 
 	private static ArrayList<Property> obtainDataFromDb_and_Validate(int radius, int latitude, int longitude,
-			Budget budget, Bed bed, Bathroom bathroom) {
+			Budget budget, Bedroom bedroom, Bathroom bathroom) {
 
 		ArrayList<Property> list = new ArrayList<Property>();
 
@@ -133,7 +169,7 @@ public class RA_assigment {
 			ResultSet rs = stmt.executeQuery(query);
 			while (rs.next()) {
 
-				validate(rs, list, radius, latitude, longitude, budget, bed, bathroom);
+				validate(rs, list, radius, latitude, longitude, budget, bedroom, bathroom);
 
 			}
 			conn.close();
@@ -171,7 +207,7 @@ public class RA_assigment {
 	 */
 
 	public static void validate(ResultSet rs, ArrayList<Property> list, int radius, int latitude, int longitude,
-			Budget budget, Bed bed, Bathroom bathroom) throws SQLException {
+			Budget budget, Bedroom bed, Bathroom bathroom) throws SQLException {
 
 		double distance = find_distance(latitude, longitude, rs.getInt(2), rs.getInt(3));
 
@@ -251,7 +287,7 @@ public class RA_assigment {
 	 * 
 	 */
 
-	private static void rateMatch(ArrayList<Property> list, int latitude, int longitude, Budget budget, Bed bed,
+	private static void rateMatch(ArrayList<Property> list, int latitude, int longitude, Budget budget, Bedroom bed,
 			Bathroom bathroom) {
 
 		for (int i = 0; i < list.size(); i++) {
@@ -321,7 +357,7 @@ public class RA_assigment {
 		}
 	}
 
-	public static void bedroom_parameter(Property temp, Bed bed) {
+	public static void bedroom_parameter(Property temp, Bedroom bed) {
 
 		if (bed.bit == true) {
 
