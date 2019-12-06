@@ -325,7 +325,7 @@ public class RA_assigment {
 			}
 		}
 
-		if (matchFound == false && list.size() == 0) {
+		if (matchFound == false || list.size() == 0) {
 			System.out.println("Match not found.");
 		}
 
