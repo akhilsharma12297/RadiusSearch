@@ -11,49 +11,49 @@ public class RA_assigment {
 
 		int latitude = 7; // My current latitude
 
-		int longtiude = 7; // My current longitude  
+		int longitude = 7; // My current longitude
 
 		Budget budget = new Budget(); // Budget has 3 members:-
-									  // "min" minimum budget range by user , -1 for no input
-									  // "max" maximum budget range by user , -1 for no input
-									  // "bit" bit is "true" when both both value are provided
+										// "min" minimum budget range by user , -1 for no input
+										// "max" maximum budget range by user , -1 for no input
+										// "bit" bit is "true" when both both value are provided
 
 		budget.max = 5000; // Value for max Budgets
 
 		Bed bed = new Bed(); // Budget has 3 members:-
-							 // "min" minimum no. of beds range by user , -1 for no input
-							 // "max" maximum no. of beds range by user , -1 for no input
-		                     // "bit" bit is "true" when both both value are provided
+								// "min" minimum no. of beds range by user , -1 for no input
+								// "max" maximum no. of beds range by user , -1 for no input
+								// "bit" bit is "true" when both both value are provided
 
 		bed.max = 2; // Value for max no. of beds
 
 		Bathroom bathroom = new Bathroom(); // Budget has 3 members:-
 											// "min" minimum no. of bathroom range by user , -1 for no input
-		 									// "max" maximum no. of bathroom range by user , -1 for no input
+											// "max" maximum no. of bathroom range by user , -1 for no input
 											// "bit" bit is "true" when both both value are provided
 
 		bathroom.max = 2; // Value for max no. of bathroom
 
-		ArrayList<Property> list = obtainDataFromDb_and_Validate(radius, latitude, longtiude, budget, bed, bathroom);
+		ArrayList<Property> list = obtainDataFromDb_and_Validate(radius, latitude, longitude, budget, bed, bathroom);
 
-		match(list, latitude, longtiude, budget, bed, bathroom);
+		rateMatch(list, latitude, longitude, budget, bed, bathroom);
 
 	}
 
 	static class Property {
 		int id;
 		int latitude;
-		int longtiude;
+		int longitude;
 		int price;
 		int no_bed;
 		int no_bath;
 
 		int match;
 
-		Property(int id, int latitude, int longtiude, int price, int no_bed, int no_bath, int match) {
+		Property(int id, int latitude, int longitude, int price, int no_bed, int no_bath, int match) {
 			this.id = id;
 			this.latitude = latitude;
-			this.longtiude = longtiude;
+			this.longitude = longitude;
 			this.price = price;
 			this.no_bed = no_bed;
 			this.no_bath = no_bath;
@@ -101,7 +101,19 @@ public class RA_assigment {
 
 	}
 
-	private static ArrayList<Property> obtainDataFromDb_and_Validate(int radius, int latitude, int longtiude,
+	/*
+	 * "obtainDataFromDb_and_Validate" function takes the input value form the user
+	 * ie. radius , latitude , longitude ,no of bed range , no of bathroom
+	 * 
+	 * The function makes connection to the database name - "radiusagent" and
+	 * obtaions data from * "propertytable" having 6 columns "id" , "latitude" ,
+	 * "longitude" ,"price" ,"no_bath", "no_bath".
+	 * 
+	 * while accessing these values row wise it is send to "validate".
+	 * 
+	 */
+
+	private static ArrayList<Property> obtainDataFromDb_and_Validate(int radius, int latitude, int longitude,
 			Budget budget, Bed bed, Bathroom bathroom) {
 
 		ArrayList<Property> list = new ArrayList<Property>();
@@ -121,7 +133,7 @@ public class RA_assigment {
 			ResultSet rs = stmt.executeQuery(query);
 			while (rs.next()) {
 
-				validate(rs, list, radius, latitude, longtiude, budget, bed, bathroom);
+				validate(rs, list, radius, latitude, longitude, budget, bed, bathroom);
 
 			}
 			conn.close();
@@ -137,10 +149,31 @@ public class RA_assigment {
 
 	}
 
-	public static void validate(ResultSet rs, ArrayList<Property> list, int radius, int latitude, int longtiude,
+	/*
+	 * "validate" function takes each ResultSet and find the distance b/w the two
+	 * using "find_distance" Only property which who's distance is less than
+	 * "radius" are only considered .
+	 * 
+	 * For budget ,bed ,bathroom which may have 2 values "min" and "max" , if not
+	 * entered by the user they are -1 .
+	 * 
+	 * If both value are provided then then -20% / -2 of min and +20% / +2 of max
+	 * are set for the search criteria. If only min or max is given then +/-20%
+	 * (+/-2 for bed and bathroom) of that value is given.
+	 * 
+	 * The value which fulfill are the added to the ArrayList . The distance value
+	 * for the property which is less than 2 is given 40 points in the match
+	 * attribute.
+	 * 
+	 * The shortlisted properties are then added to the ArrayList for the futher
+	 * match with respect to the input.
+	 * 
+	 */
+
+	public static void validate(ResultSet rs, ArrayList<Property> list, int radius, int latitude, int longitude,
 			Budget budget, Bed bed, Bathroom bathroom) throws SQLException {
 
-		double distance = Find_distance(latitude, longtiude, rs.getInt(2), rs.getInt(3));
+		double distance = find_distance(latitude, longitude, rs.getInt(2), rs.getInt(3));
 
 		int match = 0;
 
@@ -201,6 +234,61 @@ public class RA_assigment {
 					match));
 
 		}
+
+	}
+
+	/*
+	 * "rateMatch" goes through the ArrayList which has matching the properties
+	 * According to the requirement by the user. The properties are rated.
+	 * "budget_parameter" , "bedroom_parameter" , "bathroom_parameter" are the
+	 * Functions which are used to match the properties on budget , bed , bathroom
+	 * respectively. Matching on the 10 % margin range on both side and correct
+	 * match gets score acc. to the problem statement and the value is decrease as
+	 * it deviates , score is alloted accordingly.
+	 * 
+	 * The property which are 40 and above in the score card are considered and
+	 * other are are removed from the list for optimization purpose.
+	 * 
+	 */
+
+	private static void rateMatch(ArrayList<Property> list, int latitude, int longitude, Budget budget, Bed bed,
+			Bathroom bathroom) {
+
+		for (int i = 0; i < list.size(); i++) {
+
+			System.out.println();
+
+			Property temp = list.get(i);
+
+			budget_parameter(temp, budget);
+
+			bedroom_parameter(temp, bed);
+
+			bathroom_parameter(temp, bathroom);
+
+			if (temp.match >= 40) {
+
+				System.out.print("S.No " + i + " -> ID :- " + temp.id + " ");
+				System.out.print("Latitude :- " + temp.latitude + " ");
+				System.out.print("longitude :- " + temp.longitude + " ");
+				System.out.print("Price :- " + temp.price + " ");
+				System.out.print("No of Bathrooms :- " + temp.no_bath + " ");
+				System.out.print("No of Bathrooms :- " + temp.no_bed + " ");
+				System.out.print("No of Bathrooms :- " + temp.price + " ");
+				System.out.print("Match percentage :- " + temp.match + "%");
+
+				System.out.println();
+			} else {
+
+				swap_and_remove(list, i);
+
+			}
+		}
+
+	}
+
+	private static double find_distance(int x1, int y1, int x2, int y2) {
+		return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 
 	}
 
@@ -304,41 +392,15 @@ public class RA_assigment {
 
 	}
 
-	private static double Find_distance(int x1, int y1, int x2, int y2) {
-		return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+	public static void swap_and_remove(ArrayList<Property> list, int i) {
+		Property ith = list.get(i);
 
+		Property last = list.get(list.size() - 1);
+
+		list.set(list.size() - 1, ith);
+
+		list.set(i, last);
+
+		list.remove(list.size() - 1);
 	}
-
-	private static void match(ArrayList<Property> list, int latitude, int longtiude, Budget budget, Bed bed,
-			Bathroom bathroom) {
-
-		for (int i = 0; i < list.size(); i++) {
-
-			System.out.println();
-
-			Property temp = list.get(i);
-
-			budget_parameter(temp, budget);
-
-			bedroom_parameter(temp, bed);
-
-			bathroom_parameter(temp, bathroom);
-
-			if (temp.match >= 40) {
-
-				System.out.print("S.No " + i + " -> ID :- " + temp.id + " ");
-				System.out.print("Latitude :- " + temp.latitude + " ");
-				System.out.print("longtiude :- " + temp.longtiude + " ");
-				System.out.print("Price :- " + temp.price + " ");
-				System.out.print("No of Bathrooms :- " + temp.no_bath + " ");
-				System.out.print("No of Bathrooms :- " + temp.no_bed + " ");
-				System.out.print("No of Bathrooms :- " + temp.price + " ");
-				System.out.print("Match percentage :- " + temp.match + "%");
-
-				System.out.println();
-			}
-		}
-
-	}
-
 }
