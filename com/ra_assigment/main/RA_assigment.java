@@ -26,9 +26,14 @@ public class RA_assigment {
 
 		int max_bathroom = 2;
 
-		driverFunction(radius, latitude, longitude, min_budget, max_budget, min_bedroom, max_bedroom, min_bathroom,
-				max_bathroom);
+		if ((max_bathroom >= min_bathroom) && (max_bedroom >= min_bedroom) && (max_budget >= min_budget)
+				&& (radius > 1)) {
 
+			driverFunction(radius, latitude, longitude, min_budget, max_budget, min_bedroom, max_bedroom, min_bathroom,
+					max_bathroom);
+		} else {
+			System.out.println("Wrong input , please check the input.");
+		}
 	}
 
 	public static void driverFunction(int radius, int latitude, int longitude, int min_budget, int max_budget,
@@ -73,7 +78,7 @@ public class RA_assigment {
 		ArrayList<Property> list = obtainDataFromDb_and_Validate(radius, latitude, longitude, budget, bedroom,
 				bathroom);
 
-		rateMatch(list, latitude, longitude, budget, bedroom, bathroom);
+		scoreMatch(list, latitude, longitude, budget, bedroom, bathroom);
 	}
 
 	static class Property {
@@ -282,13 +287,14 @@ public class RA_assigment {
 	 * match gets score acc. to the problem statement and the value is decrease as
 	 * it deviates , score is alloted accordingly.
 	 * 
-	 * The property which are 40 and above in the score card are considered and
-	 * other are are removed from the list for optimization purpose.
+	 * The property which are 40 and above in the score card are considered.
 	 * 
 	 */
 
-	private static void rateMatch(ArrayList<Property> list, int latitude, int longitude, Budget budget, Bedroom bed,
+	private static void scoreMatch(ArrayList<Property> list, int latitude, int longitude, Budget budget, Bedroom bed,
 			Bathroom bathroom) {
+
+		boolean matchFound = false;
 
 		for (int i = 0; i < list.size(); i++) {
 
@@ -304,6 +310,8 @@ public class RA_assigment {
 
 			if (temp.match >= 40) {
 
+				matchFound = true;
+
 				System.out.print("S.No " + i + " -> ID :- " + temp.id + " ");
 				System.out.print("Latitude :- " + temp.latitude + " ");
 				System.out.print("longitude :- " + temp.longitude + " ");
@@ -315,6 +323,10 @@ public class RA_assigment {
 
 				System.out.println();
 			}
+		}
+
+		if (matchFound == false && list.size() == 0) {
+			System.out.println("Match not found.");
 		}
 
 	}
