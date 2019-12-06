@@ -1,50 +1,31 @@
-package com.ra_assigment.function_file;
+package com.ra_assigment.main;
 
 import java.util.ArrayList;
+import java.sql.*;
 
 public class RA_assigment {
 
-	static class Budget {
-		int min = -1;
-		int max = -1;
-		boolean bit;
-
-		public void SetBit() {
-			if (min > -1 && max > -1) {
-				this.bit = true;
-			} else
-				this.bit = false;
+	public static void makeDB_Connection() {
+		Connection con = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/radiusagent", "root", "your_password ");
+			if (!con.isClosed())
+				System.out.println("Successfully connected to MySQL server...");
+		} catch (Exception e) {
+			System.err.println("Exception: " + e.getMessage());
+		} finally {
+			try {
+				if (con != null)
+					con.close();
+			} catch (SQLException e) {
+			}
 		}
-	}
-
-	static class Bed {
-		int min = -1;
-		int max = -1;
-		boolean bit;
-
-		public void SetBit() {
-			if (min > -1 && max > -1) {
-				this.bit = true;
-			} else
-				this.bit = false;
-		}
-	}
-
-	static class Bathroom {
-		int min = -1;
-		int max = -1;
-		boolean bit;
-
-		public void SetBit() {
-			if (min > -1 && max > -1) {
-				this.bit = true;
-			} else
-				this.bit = false;
-		}
-
 	}
 
 	public static void main(String[] args) {
+
+		makeDB_Connection();
 
 		int latitude = 7;
 
@@ -89,6 +70,46 @@ public class RA_assigment {
 			this.no_bed = no_bed;
 			this.no_bath = no_bath;
 		}
+	}
+
+	static class Budget {
+		int min = -1;
+		int max = -1;
+		boolean bit;
+
+		public void SetBit() {
+			if (min > -1 && max > -1) {
+				this.bit = true;
+			} else
+				this.bit = false;
+		}
+	}
+
+	static class Bed {
+		int min = -1;
+		int max = -1;
+		boolean bit;
+
+		public void SetBit() {
+			if (min > -1 && max > -1) {
+				this.bit = true;
+			} else
+				this.bit = false;
+		}
+	}
+
+	static class Bathroom {
+		int min = -1;
+		int max = -1;
+		boolean bit;
+
+		public void SetBit() {
+			if (min > -1 && max > -1) {
+				this.bit = true;
+			} else
+				this.bit = false;
+		}
+
 	}
 
 	private static void driverFunc(ArrayList<Property> list, int latitude, int longtiude, Budget budget, Bed bed,
@@ -166,7 +187,14 @@ public class RA_assigment {
 		}
 
 		for (int i = 0; i < list.size(); i++) {
-			System.out.println(list.get(i).match);
+			System.out.print(list.get(i).id + " ");
+			System.out.print(list.get(i).latitude + " ");
+			System.out.print(list.get(i).longtiude + " ");
+			System.out.print(list.get(i).match + " ");
+			System.out.print(list.get(i).no_bath + " ");
+			System.out.print(list.get(i).no_bed + " ");
+			System.out.print(list.get(i).price + " ");
+			System.out.print(list.get(i).match);
 		}
 
 	}
