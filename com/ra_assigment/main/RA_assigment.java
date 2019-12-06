@@ -7,22 +7,32 @@ public class RA_assigment {
 
 	public static void main(String[] args) {
 
-		int radius = 10;
-		int latitude = 7;
+		int radius = 10; // Property under the distance "radius" will be considered
 
-		int longtiude = 7;
+		int latitude = 7; // My current latitude
 
-		Budget budget = new Budget();
+		int longtiude = 7; // My current longitude  
 
-		budget.max = 5000;
+		Budget budget = new Budget(); // Budget has 3 members:-
+									  // "min" minimum budget range by user , -1 for no input
+									  // "max" maximum budget range by user , -1 for no input
+									  // "bit" bit is "true" when both both value are provided
 
-		Bed bed = new Bed();
+		budget.max = 5000; // Value for max Budgets
 
-		bed.max = 2;
+		Bed bed = new Bed(); // Budget has 3 members:-
+							 // "min" minimum no. of beds range by user , -1 for no input
+							 // "max" maximum no. of beds range by user , -1 for no input
+		                     // "bit" bit is "true" when both both value are provided
 
-		Bathroom bathroom = new Bathroom();
+		bed.max = 2; // Value for max no. of beds
 
-		bathroom.max = 2;
+		Bathroom bathroom = new Bathroom(); // Budget has 3 members:-
+											// "min" minimum no. of bathroom range by user , -1 for no input
+		 									// "max" maximum no. of bathroom range by user , -1 for no input
+											// "bit" bit is "true" when both both value are provided
+
+		bathroom.max = 2; // Value for max no. of bathroom
 
 		ArrayList<Property> list = obtainDataFromDb_and_Validate(radius, latitude, longtiude, budget, bed, bathroom);
 
