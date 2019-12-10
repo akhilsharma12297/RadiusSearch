@@ -26,18 +26,18 @@ public class RA_assigment {
 
 		int max_bathroom = 2;
 
-		if ((max_bathroom >= min_bathroom) && (max_bedroom >= min_bedroom) && (max_budget >= min_budget)
-				&& (radius > 1)) {
+		driverFunction(radius, latitude, longitude, min_budget, max_budget, min_bedroom, max_bedroom, min_bathroom,
+				max_bathroom);
 
-			driverFunction(radius, latitude, longitude, min_budget, max_budget, min_bedroom, max_bedroom, min_bathroom,
-					max_bathroom);
-		} else {
-			System.out.println("Wrong input , please check the input.");
-		}
 	}
 
 	public static void driverFunction(int radius, int latitude, int longitude, int min_budget, int max_budget,
 			int min_bedroom, int max_bedroom, int min_bathroom, int max_bathroom) {
+
+		if (!(max_bathroom >= min_bathroom) || !(max_bedroom >= min_bedroom) || !(max_budget >= min_budget)
+				|| !(radius > 1)) {
+			System.out.println("Wrong input , please check the input.");
+		}
 
 		Budget budget = new Budget(); // Budget has 3 members:-
 										// "min" minimum budget range by user , -1 for no input
